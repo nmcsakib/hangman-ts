@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import words from './data/data.json'
 import HangmanDrawing from "./HangmanDrawing/HangmanDrawing";
 import Keyboard from "./Keyboard/Keyboard";
@@ -13,20 +13,20 @@ const App = () => {
   const [result, setResult] = useState('')
   console.log('coorect', matchedLetters);
 
-  const wordArr = word.split('');
+  let wordArr: string[] = word.split('');
   console.log(word);
 
   useEffect(() => {
 
-    if(matchedLetters.length === wordArr.length){
+    if (matchedLetters.length === wordArr.length) {
       setIsMatched(true)
       setResult('You Won')
     }
-    else if(wrongGuesses > 9){
+    else if (wrongGuesses > 9) {
       setIsMatched(true)
       setResult('You Lose')
     }
-    else{
+    else {
       setIsMatched(false)
     }
   }, [matchedLetters, wordArr, wrongGuesses])
@@ -37,10 +37,10 @@ const App = () => {
     setPressedKeys((prev) => [...prev, letter]);
 
     setMatchedLetters((): string[] => {
-  const countInWord = wordArr.filter((l) => l === letter).length;
-  const newMatches = Array(countInWord).fill(letter);
-  return [...matchedLetters, ...newMatches];
-});
+      const countInWord = wordArr.filter((l) => l === letter).length;
+      const newMatches = Array(countInWord).fill(letter);
+      return [...matchedLetters, ...newMatches];
+    });
 
     if (wordArr.includes(letter)) {
       setWrongGuesses(prev => prev)
@@ -50,30 +50,59 @@ const App = () => {
 
     }
   };
+
+const handlePressed = (event: React.KeyboardEvent<HTMLInputElement>) => {
+  console.log('Pressed key:', event.key);
+  const letter = event.key.toLowerCase()
+
+  if(!pressedKeys.includes(letter))  handleClick(letter)
+
+};
+
+  console.log(wrongGuesses);
   return (
-    <div className='bg-slate-400 min-h-[90vh] w-full md:w-1/2 mx-auto flex flex-col justify-center items-center gap-4'>
-      {/* <h2 className="text-2xl tracking-widest uppercase"> {((matchedLetters.length > 0 || matchedLetters.length < 5) && wrongGuesses < 10) ? matchedLetters.join(' ') : word }</h2> */}
+    <label htmlFor="guessWord">
 
-      <h2 className="text-2xl tracking-widest uppercase flex justify-center items-center gap-2 pt-5 text-center">{wordArr.map(letter => <span className={'border-2 min-h-[35px] min-w-[25px]'} key={letter}>{matchedLetters.includes(letter)? letter : ''}</span>)}</h2>
+    <div className='bg-slate-400 min-h-screen w-full md:w-1/2 mx-auto flex flex-col justify-center items-center gap-4 relative'>
       <HangmanDrawing wrongGuesses={wrongGuesses} />
-     {
-      result &&  <div className={`text-2xl font-bold ${result === 'You Won' ? 'text-green-300' : 'text-red-500'} flex justify-center items-center gap-4`}><p>{result}</p> <br /> <button
-      onClick={() => {
-        setWrongGuesses(1)
-        setWord((() => {
-    return words[Math.floor(Math.random() * words.length)]
-  }))
-        setIsMatched(false)
-        setMatchedLetters([])
-        setPressedKeys([])
-        setResult('')
-      }}
-      className="text-sm border p-3 rounded-lg hover:bg-green-600 cursor-pointer text-center">Restart</button></div>
-     }
+      <h2 className="text-2xl tracking-widest uppercase flex justify-center items-center gap-2 text-center transition-all">{wordArr.map((letter, i) => <span className={'border-b-2 min-h-[35px] min-w-[25px]'} key={i}>{matchedLetters.includes(letter) && wrongGuesses < 11 ? letter : wrongGuesses > 9 ? letter : ''}</span>)}</h2>
 
-      {/* <button className="bg-amber-800 rounded-md p-2" onClick={() => setWrongGuesses(1)}>click</button> */}
+
+      <input onKeyDown={handlePressed} type="text" className=" text-transparent outline-none absolute -top-20" id="guessWord" name="guessWord"/>
+
+
+
+      {
+
+         result && <div className="flex flex-col items-center justify-center p-6 bg-gray-300 rounded-2xl shadow-lg border max-w-sm mx-auto">
+      <h2 className={`text-3xl font-bold mb-4 ${result === 'You Won' ? 'text-green-600' : 'text-red-600'}`}>
+        {result === 'You Won' ? '🎉 You Won!' : '💀 You Lost!'}
+      </h2>
+      <p className="text-gray-700 mb-6 text-center">
+        {result === 'You Won'
+          ? 'Great job! You guessed the word correctly.'
+          : 'Oops! You ran out of guesses.'}
+      </p>
+      <button
+       onClick={() => {
+            wordArr = []
+            setWrongGuesses(1)
+            setWord((() => {
+              return words[Math.floor(Math.random() * words.length)]
+            }))
+            setIsMatched(false)
+            setMatchedLetters([])
+            setPressedKeys([])
+            setResult('')
+          }}
+      className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 px-6 rounded-lg transition cursor-pointer">
+        🔁 Restart Game
+      </button>
+    </div>
+      }
       <Keyboard values={[pressedKeys, handleClick, wordArr, isMatched]} />
     </div>
+    </label>
   );
 };
 

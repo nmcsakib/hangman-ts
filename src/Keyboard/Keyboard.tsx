@@ -25,7 +25,7 @@ const Keyboard = ({ values }: KeyboardProps) => {
         <div className="flex flex-col items-center justify-center p-4">
 
             <div className="grid grid-cols-7 gap-2 mb-6">
-                  {letters.map((letter) => {
+                  {letters.map((letter, i) => {
           const isPressed = pressedKeys.includes(letter);
           const isCorrect = wordArr.includes(letter);
 
@@ -36,7 +36,7 @@ const Keyboard = ({ values }: KeyboardProps) => {
 
           return (
             <button
-              key={letter}
+              key={i}
               onClick={() => {
                 handleClick(letter)}}
               disabled={(isPressed && !isCorrect) || isMatched===true}
